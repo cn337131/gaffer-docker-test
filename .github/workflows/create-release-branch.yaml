@@ -62,7 +62,11 @@ jobs:
         git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
     - name: Update versions
-      run: ./cd/update_versions.sh ${RELEASE_VERSION}
+      run: |
+        ./cd/update_versions.sh ${RELEASE_VERSION}
+
+        find . -name 'Dockerfile' -exec sed -i -E "s/([A-Z]+_VERSION=)[0-9]+\.[0-9]+\.[0-9]+/\1${{env.RELEASE_VERSION}}" +
+        find . -name '.env' -exec sed -i -E "s/([A-Z]+_VERSION=)[0-9]+\.[0-9]+\.[0-9]+/\1${{env.RELEASE_VERSION}}"
 
     - name: Push to release branch
       run: |
