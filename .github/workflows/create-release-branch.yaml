@@ -65,11 +65,14 @@ jobs:
       run: |
         ./cd/update_versions.sh ${RELEASE_VERSION}
 
-        find . -name 'Dockerfile' -exec sed -i -E "s/([A-Z]+_VERSION=)[0-9]+\.[0-9]+\.[0-9]+/\1${{env.RELEASE_VERSION}}/" \;
-        find . -name '.env' -exec sed -i -E "s/([A-Z]+_VERSION=)[0-9]+\.[0-9]+\.[0-9]+/\1${{env.RELEASE_VERSION}}/" \;
-
     - name: Push to release branch
       run: |
         git checkout -b $BRANCH_NAME
         git commit -a -m "prepare release v${RELEASE_VERSION}" --allow-empty
         git push --set-upstream origin $BRANCH_NAME
+
+    - name: Create PR to master
+      run: |
+        gh pr create -B master -H $BRANCH_NAME --title 'Merge release into master branch' --body 'Created by GH Action'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -64,3 +64,8 @@ yq eval ".jupyterhub.singleuser.profileList[1].spark_image = \"gchq/spark-py:${S
 yq eval ".jupyterhub.singleuser.profileList[1].kubespawner_override.image = \"gchq/gaffer-pyspark-notebook:${GAFFER_VERSION}\"" -i ./kubernetes/gaffer-jhub/values.yaml
 yq eval ".optionsServer.image.tag = \"${JHUB_OPTIONS_SERVER_VERSION}\"" -i ./kubernetes/gaffer-jhub/values.yaml
 yq eval ".testImages.python.tag = \"${GAFFER_VERSION}\"" -i ./kubernetes/gaffer-jhub/values.yaml
+
+# Update Gaffer version in dockerfiles and .env files
+find . -type f -exec sed -i "s/GAFFER_VERSION=[0-9]\.[0-9]\.[0-9]/GAFFER_VERSION=${GAFFER_VERSION}/g" {} +
+find . -type f -exec sed -i "s/GAFFERPY_VERSION=[0-9]\.[0-9]\.[0-9]/GAFFERPY_VERSION=${GAFFER_VERSION}/g" {} +
+find . -type f -exec sed -i "s/GAFFER_TESTER_VERSION=[0-9]\.[0-9]\.[0-9]/GAFFER_TESTER_VERSION=${GAFFER_VERSION}/g" {} +
