@@ -38,16 +38,6 @@ jobs:
     - name: Set release branch
       run: echo "BRANCH_NAME=$(echo release/${{ env.RELEASE_VERSION }} )" >> $GITHUB_ENV
 
-    - name: Get latest tag
-      uses: actions-ecosystem/action-get-latest-tag@v1
-      id: get-latest-tag
-
-    - name: Format latest tag
-      run: echo "CURRENT_VERSION=$(echo ${{ steps.get-latest-tag.outputs.tag }} | sed 's/^v//')" >> $GITHUB_ENV
-
-    - name: Bump latest tag variable version
-      run: echo "RELEASE_VERSION=$(echo ${{ env.CURRENT_VERSION }} | sed -r 's/([0-9]+)\.([0-9]+)\.([0-9]+)/echo \1.$((\2+1)).0/' | sh)" >> $GITHUB_ENV
-
     - name: Set up Github credentials
       run: |
         git config user.name github-actions[bot]
