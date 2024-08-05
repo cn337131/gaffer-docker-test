@@ -7,9 +7,6 @@ There are two main sub-folders, 'docker' and 'kubernetes' which contain the proj
 
 For information on how to run Gaffer using Docker containers, please see the documentation: [Gaffer Docker Docs](https://gchq.github.io/gaffer-doc/latest/dev/docker/)
 
-# Running Gaffer Using Kubernetes
-
-For information on how to run Gaffer using Kubernetes, please see the documentation: [Gaffer Kubernetes Docs](https://gchq.github.io/gaffer-doc/latest/dev/kubernetes-guide/kubernetes/)
 
 # Versioning
 
