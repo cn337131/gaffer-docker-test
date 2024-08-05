@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: Release
+name: Full Release
 
 on:
   pull_request:
@@ -104,18 +104,11 @@ jobs:
     runs-on: ubuntu-latest
     needs:
     - get-release-version
-    - update-branches
 
     steps:
     - uses: actions/checkout@v4
       with:
         ref: master
-
-    # - name: Create Release Notes
-    #   id: create_release_notes
-    #   uses: docker://decathlon/release-notes-generator-action:3.1.6
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set version
       run: echo "RELEASE_VERSION=$(echo ${{ needs.get-release-version.outputs.release_version }})" >> $GITHUB_ENV
@@ -132,7 +125,6 @@ jobs:
 #     runs-on: ubuntu-latest
 #     needs:
 #     - get-release-version
-#     - create-release-notes
 #     strategy:
 #       matrix:
 #         chart:
@@ -168,11 +160,10 @@ jobs:
 #     - name: Upload Asset
 #       env:
 #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#       run: gh release upload ${{ github.event.milestone.title }} ${{ env.ASSET_FILENAME }}
+#       run: gh release upload ${{ steps.release-version.outputs.release_version }} ${{ env.ASSET_FILENAME }}
 
 #   update-helm-repo:
 #     runs-on: ubuntu-latest
-#     if: github.event_name == 'milestone'
 #     needs:
 #     - upload-release-artifacts
 
@@ -196,7 +187,7 @@ jobs:
 #     - name: Update repo
 #       run: |
 #         mv artifacts/*/*.tgz .
-#         helm repo index . --url "https://github.com/gchq/gaffer-docker/releases/download/${{ github.event.milestone.title }}" --merge index.yaml
+#         helm repo index . --url "https://github.com/gchq/gaffer-docker/releases/download/${{ steps.release-version.outputs.release_version }}" --merge index.yaml
 #         sed -i'' -e 's|file://.*|https://gchq.github.io/gaffer-docker|g' index.yaml
 #         rm *.tgz
 #         rm -r artifacts
