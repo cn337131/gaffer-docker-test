@@ -15,11 +15,9 @@
 name: Create Release Branch
 
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release Branch Version'
-        required: false
+  milestone:
+    types:
+    - closed
 
 jobs:
   create-release-branch:
@@ -33,28 +31,22 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
 
-    - name: Set version from input
-      if: ${{ github.event.inputs.version }}
-      run: echo "RELEASE_VERSION=$(echo ${{ github.event.inputs.version }} | sed 's/^v//')" >> $GITHUB_ENV
+    - name: Set version from milestone
+      if: ${{ github.event.milestone.title }}
+      run: echo "RELEASE_VERSION=$(echo ${{ github.event.milestone.title }} | sed 's/^v//')" >> $GITHUB_ENV
+
+    - name: Set release branch
+      run: echo "BRANCH_NAME=$(echo release/${{ env.RELEASE_VERSION }} )" >> $GITHUB_ENV
 
     - name: Get latest tag
-      if: ${{ !github.event.inputs.version }}
       uses: actions-ecosystem/action-get-latest-tag@v1
       id: get-latest-tag
 
     - name: Format latest tag
-      if: ${{ !github.event.inputs.version }}
       run: echo "CURRENT_VERSION=$(echo ${{ steps.get-latest-tag.outputs.tag }} | sed 's/^v//')" >> $GITHUB_ENV
 
     - name: Bump latest tag variable version
-      if: ${{ !github.event.inputs.version }}
       run: echo "RELEASE_VERSION=$(echo ${{ env.CURRENT_VERSION }} | sed -r 's/([0-9]+)\.([0-9]+)\.([0-9]+)/echo \1.$((\2+1)).0/' | sh)" >> $GITHUB_ENV
-
-    - name: Verify version regex
-      run: echo ${{ env.RELEASE_VERSION }} | grep -E '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'
-
-    - name: Set release branch
-      run: echo "BRANCH_NAME=$(echo release/${{ env.RELEASE_VERSION }} )" >> $GITHUB_ENV
 
     - name: Set up Github credentials
       run: |
@@ -77,6 +69,12 @@ jobs:
         git checkout -b $BRANCH_NAME
         git commit -a -m "prepare release v${RELEASE_VERSION}" --allow-empty
         git push --set-upstream origin $BRANCH_NAME
+
+    - name: Tag release branch
+      run: |
+        git tag v${RELEASE_VERSION}
+        git push origin v${RELEASE_VERSION}
+        git push
 
     - name: Create PR to master
       run: |
